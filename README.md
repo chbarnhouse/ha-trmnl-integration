@@ -16,15 +16,17 @@ Home Assistant integration for controlling TRMNL e-ink display devices. Send ima
 ### Via HACS (Recommended)
 
 1. Open Home Assistant and go to **Settings → Devices & Services → Integrations**
-2. Click **+ Create Integration**
-3. Search for "TRMNL"
-4. Follow the configuration wizard
+2. Click **⋮ → Repositories**
+3. Add custom repository: `https://github.com/chbarnhouse/ha-trmnl-integration`
+4. Category: **Integration**
+5. Click **+ Create Integration** and search for "TRMNL"
+6. Follow the configuration wizard
 
 ### Manual Installation
 
 1. Clone this repository to your Home Assistant config:
    ```bash
-   git clone https://github.com/yourusername/ha-trmnl-integration.git \
+   git clone https://github.com/chbarnhouse/ha-trmnl-integration.git \
      /home/homeassistant/.homeassistant/custom_components/trmnl
    ```
 
