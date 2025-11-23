@@ -1,0 +1,55 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Choose TRMNL Implementation",
+        "description": "Select your TRMNL implementation type. {implementations}",
+        "data": {
+          "implementation_type": "Implementation Type"
+        }
+      },
+      "standard": {
+        "title": "Standard TRMNL Configuration",
+        "description": "Configure your Standard TRMNL device from usetrmnl.com",
+        "data": {
+          "device_id": "Device ID",
+          "api_key": "API Key"
+        }
+      },
+      "terminus": {
+        "title": "Terminus BYOS Configuration",
+        "description": "Configure your Terminus BYOS server",
+        "data": {
+          "device_id": "Device ID",
+          "api_endpoint": "API Endpoint (e.g., http://localhost:2300)",
+          "api_key": "API Key (optional)"
+        }
+      },
+      "generic_byos": {
+        "title": "Generic BYOS Configuration",
+        "description": "Configure your generic BYOS server",
+        "data": {
+          "device_id": "Device ID",
+          "api_endpoint": "API Endpoint",
+          "api_key": "API Key (optional)"
+        }
+      }
+    },
+    "error": {
+      "invalid_input": "Invalid input provided",
+      "unknown": "Unknown error occurred"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "TRMNL Options",
+        "description": "Configure TRMNL integration options",
+        "data": {
+          "enable_rate_limiting": "Enable Rate Limiting",
+          "rate_limit_requests_per_hour": "Rate Limit (requests per hour)"
+        }
+      }
+    }
+  }
+}

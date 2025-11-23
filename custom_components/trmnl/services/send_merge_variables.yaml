@@ -1,0 +1,20 @@
+name: Send merge variables to TRMNL device
+description: Send or update merge variables on a TRMNL display
+fields:
+  device_id:
+    name: Device ID
+    description: The MAC address of the TRMNL device
+    required: true
+    example: "28:37:2F:AA:B8:D0"
+  variables:
+    name: Variables
+    description: Dictionary of variables to merge
+    required: true
+    example:
+      temperature: 72
+      humidity: 45
+  merge_strategy:
+    name: Merge Strategy
+    description: How to merge variables (deep_merge or stream)
+    required: false
+    example: "deep_merge"

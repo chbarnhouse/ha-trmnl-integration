@@ -1,0 +1,18 @@
+name: Send image to TRMNL device
+description: Send an image to a TRMNL e-ink display device
+fields:
+  device_id:
+    name: Device ID
+    description: The MAC address of the TRMNL device
+    required: true
+    example: "28:37:2F:AA:B8:D0"
+  image_url:
+    name: Image URL
+    description: Full URL to the image to display
+    required: true
+    example: "https://example.com/image.png"
+  refresh_rate:
+    name: Refresh Rate
+    description: Screen refresh rate (in seconds)
+    required: false
+    example: 300

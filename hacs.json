@@ -1,0 +1,9 @@
+{
+  "name": "TRMNL E-Ink Display",
+  "content_in_root": true,
+  "homeassistant": "2024.1.0",
+  "iot_class": "cloud_polling",
+  "requirements": [
+    "aiohttp>=3.8.0"
+  ]
+}
