@@ -1,5 +1,4 @@
 {
-  "manifest_version": 1,
   "domain": "trmnl",
   "name": "TRMNL E-Ink Display",
   "documentation": "https://github.com/chbarnhouse/ha-trmnl-integration",
@@ -13,5 +12,6 @@
   "config_flow": true,
   "version": "1.0.0",
   "iot_class": "cloud_polling",
-  "homeassistant": "2024.1.0"
+  "homeassistant": "2024.1.0",
+  "integration_type": "service"
 }
