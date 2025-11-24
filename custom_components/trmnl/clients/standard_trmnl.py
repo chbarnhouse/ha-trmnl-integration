@@ -189,3 +189,50 @@ class StandardTRMNLClient(TRMNLClientBase):
         """Set the webhook plugin UUID for sending images."""
         self.plugin_uuid = uuid
         _LOGGER.debug(f"Plugin UUID set to {uuid}")
+
+    async def fetch_devices(self) -> Dict[str, str]:
+        """Fetch list of devices for the account.
+
+        Returns:
+            Dict mapping device IDs to device names, or empty dict if API doesn't support it
+        """
+        try:
+            session = await self._get_session()
+            headers = {
+                "Access-Token": self.api_key,
+            }
+
+            # Try to fetch devices from TRMNL API
+            async with session.get(
+                f"{self.api_endpoint}/api/devices",
+                headers=headers,
+                timeout=aiohttp.ClientTimeout(total=self.request_timeout),
+            ) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    # Parse device list - expecting array of device objects
+                    devices = {}
+                    if isinstance(data, list):
+                        for device in data:
+                            device_id = device.get("device_id") or device.get("id") or device.get("mac")
+                            device_name = device.get("name") or device.get("device_name") or device_id
+                            if device_id:
+                                devices[device_id] = device_name
+                    elif isinstance(data, dict) and "devices" in data:
+                        device_list = data["devices"]
+                        if isinstance(device_list, list):
+                            for device in device_list:
+                                device_id = device.get("device_id") or device.get("id") or device.get("mac")
+                                device_name = device.get("name") or device.get("device_name") or device_id
+                                if device_id:
+                                    devices[device_id] = device_name
+                    _LOGGER.debug(f"Fetched {len(devices)} devices from TRMNL API")
+                    return devices
+                else:
+                    _LOGGER.warning(
+                        f"Failed to fetch devices: HTTP {resp.status} - {await resp.text()}"
+                    )
+                    return {}
+        except Exception as err:
+            _LOGGER.warning(f"Exception fetching devices from TRMNL: {err}")
+            return {}
