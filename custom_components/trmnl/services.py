@@ -19,7 +19,6 @@ rate_limiter_manager = RateLimiterManager()
 # Service schemas
 SEND_IMAGE_SCHEMA = vol.Schema(
     {
-        vol.Required("device_id"): str,
         vol.Required("image_url"): str,
         vol.Optional("refresh_rate"): int,
     }
@@ -27,7 +26,6 @@ SEND_IMAGE_SCHEMA = vol.Schema(
 
 SEND_MERGE_VARIABLES_SCHEMA = vol.Schema(
     {
-        vol.Required("device_id"): str,
         vol.Required("variables"): dict,
         vol.Optional("merge_strategy", default="deep_merge"): vol.In(
             ["deep_merge", "stream"]
@@ -41,26 +39,30 @@ async def async_setup_services(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
     async def handle_send_image(call: ServiceCall) -> None:
         """Handle send_image service call."""
-        device_id = call.data.get("device_id")
+        # Get device from the service target
+        target_device_id = call.data.get("device_id")
         image_url = call.data.get("image_url")
         refresh_rate = call.data.get("refresh_rate")
 
-        # Get client for the device
+        if not target_device_id:
+            raise HomeAssistantError("No device selected for send_image service")
+
+        if not image_url:
+            raise HomeAssistantError("image_url is required for send_image service")
+
+        # Get client config for this entry
         client_config = hass.data[DOMAIN].get(entry.entry_id)
         if not client_config:
-            raise HomeAssistantError(f"Device {device_id} not found in integration")
+            raise HomeAssistantError("TRMNL integration not properly configured")
 
-        if client_config.get("device_id") != device_id:
-            raise HomeAssistantError(
-                f"Device {device_id} does not match configured device"
-            )
+        device_mac = client_config.get("device_id")
 
         # Check rate limiting
         rate_limit = entry.options.get("rate_limit_requests_per_hour", 12)
         enable_rate_limiting = entry.options.get("enable_rate_limiting", True)
 
         limiter = rate_limiter_manager.get_limiter(
-            device_id=device_id,
+            device_id=device_mac,
             requests_per_hour=rate_limit,
             enabled=enable_rate_limiting,
         )
@@ -69,21 +71,21 @@ async def async_setup_services(hass: HomeAssistant, entry: ConfigEntry) -> None:
             wait_time = limiter.get_wait_time()
             remaining_time = int(wait_time)
             raise HomeAssistantError(
-                f"Rate limit exceeded for {device_id}. "
+                f"Rate limit exceeded for {device_mac}. "
                 f"Please wait {remaining_time} seconds before retry."
             )
 
         # Create client
         client = TRMNLClientFactory.create_client(
             implementation_type=client_config.get("implementation_type"),
-            device_id=device_id,
+            device_id=device_mac,
             api_key=client_config.get("api_key", ""),
             api_endpoint=client_config.get("api_endpoint"),
         )
 
         if not client:
             raise HomeAssistantError(
-                f"Could not create client for device {device_id}"
+                f"Could not create client for device {device_mac}"
             )
 
         try:
@@ -96,32 +98,36 @@ async def async_setup_services(hass: HomeAssistant, entry: ConfigEntry) -> None:
             # Record successful request
             limiter.record_request()
             limiter.log_status()
-            _LOGGER.debug(f"Image sent to {device_id}: {image_url}")
+            _LOGGER.debug(f"Image sent to {device_mac}: {image_url}")
         finally:
             await client.close()
 
     async def handle_send_merge_variables(call: ServiceCall) -> None:
         """Handle send_merge_variables service call."""
-        device_id = call.data.get("device_id")
+        # Get device from the service target
+        target_device_id = call.data.get("device_id")
         variables = call.data.get("variables")
         merge_strategy = call.data.get("merge_strategy", "deep_merge")
 
-        # Get client for the device
+        if not target_device_id:
+            raise HomeAssistantError("No device selected for send_merge_variables service")
+
+        if not variables:
+            raise HomeAssistantError("variables is required for send_merge_variables service")
+
+        # Get client config for this entry
         client_config = hass.data[DOMAIN].get(entry.entry_id)
         if not client_config:
-            raise HomeAssistantError(f"Device {device_id} not found in integration")
+            raise HomeAssistantError("TRMNL integration not properly configured")
 
-        if client_config.get("device_id") != device_id:
-            raise HomeAssistantError(
-                f"Device {device_id} does not match configured device"
-            )
+        device_mac = client_config.get("device_id")
 
         # Check rate limiting
         rate_limit = entry.options.get("rate_limit_requests_per_hour", 12)
         enable_rate_limiting = entry.options.get("enable_rate_limiting", True)
 
         limiter = rate_limiter_manager.get_limiter(
-            device_id=device_id,
+            device_id=device_mac,
             requests_per_hour=rate_limit,
             enabled=enable_rate_limiting,
         )
@@ -130,21 +136,21 @@ async def async_setup_services(hass: HomeAssistant, entry: ConfigEntry) -> None:
             wait_time = limiter.get_wait_time()
             remaining_time = int(wait_time)
             raise HomeAssistantError(
-                f"Rate limit exceeded for {device_id}. "
+                f"Rate limit exceeded for {device_mac}. "
                 f"Please wait {remaining_time} seconds before retry."
             )
 
         # Create client
         client = TRMNLClientFactory.create_client(
             implementation_type=client_config.get("implementation_type"),
-            device_id=device_id,
+            device_id=device_mac,
             api_key=client_config.get("api_key", ""),
             api_endpoint=client_config.get("api_endpoint"),
         )
 
         if not client:
             raise HomeAssistantError(
-                f"Could not create client for device {device_id}"
+                f"Could not create client for device {device_mac}"
             )
 
         try:
@@ -158,7 +164,7 @@ async def async_setup_services(hass: HomeAssistant, entry: ConfigEntry) -> None:
             limiter.record_request()
             limiter.log_status()
             _LOGGER.debug(
-                f"Merge variables sent to {device_id}: {variables}"
+                f"Merge variables sent to {device_mac}: {variables}"
             )
         finally:
             await client.close()
