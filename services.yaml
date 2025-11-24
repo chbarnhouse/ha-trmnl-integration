@@ -1,0 +1,41 @@
+send_image:
+  name: Send Image
+  description: Send an image to a TRMNL device.
+  target:
+    entity:
+      domain: trmnl
+  fields:
+    device_id:
+      name: Device
+      description: The TRMNL device to send the image to.
+      required: true
+      selector:
+        device:
+          model: TRMNL
+    image_url:
+      name: Image URL
+      description: URL of the image to send.
+      required: true
+      selector:
+        text:
+
+send_merge_variables:
+  name: Send Merge Variables
+  description: Send merge variables to update display content on a TRMNL device.
+  target:
+    entity:
+      domain: trmnl
+  fields:
+    device_id:
+      name: Device
+      description: The TRMNL device to send variables to.
+      required: true
+      selector:
+        device:
+          model: TRMNL
+    variables:
+      name: Variables
+      description: JSON object containing variables to merge and display.
+      required: true
+      selector:
+        object:
