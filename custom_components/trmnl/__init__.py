@@ -34,8 +34,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "api_endpoint": api_endpoint,
     }
 
-    # Try to fetch device name from API
-    device_name = entry.title  # Default to entry title
+    # Register device in device registry
+    device_registry = dr.async_get(hass)
+    device = device_registry.async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, device_mac)},
+        manufacturer="TRMNL",
+        model=implementation_type.replace("_", " ").title(),
+        name=entry.title,
+    )
+    _LOGGER.debug(f"Registered device: {device.name} ({device_mac})")
+
+    # Try to fetch device name from API and update if successful
     if implementation_type == "standard":
         try:
             from .clients.standard_trmnl import StandardTRMNLClient
@@ -50,26 +60,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             # Get the name of our specific device
             if device_mac in devices:
                 device_name = devices[device_mac]
-                _LOGGER.debug(f"Fetched device name from API: {device_name}")
+                # Update device name in registry
+                device_registry.async_update_device(
+                    device.id,
+                    name=device_name,
+                )
+                # Update config entry title
+                hass.config_entries.async_update_entry(entry, title=device_name)
+                _LOGGER.debug(f"Updated device name to: {device_name}")
         except Exception as err:
             _LOGGER.warning(f"Could not fetch device name from API: {err}")
-            # Fall back to entry title
-
-    # Register device in device registry
-    device_registry = dr.async_get(hass)
-    device = device_registry.async_get_or_create(
-        config_entry_id=entry.entry_id,
-        identifiers={(DOMAIN, device_mac)},
-        manufacturer="TRMNL",
-        model=implementation_type.replace("_", " ").title(),
-        name=device_name,
-    )
-    _LOGGER.debug(f"Registered device: {device.name} ({device_mac})")
-
-    # Update config entry title if we got a better name from API
-    if device_name != entry.title:
-        hass.config_entries.async_update_entry(entry, title=device_name)
-        _LOGGER.debug(f"Updated config entry title to: {device_name}")
 
     # Register services
     from .services import async_setup_services
