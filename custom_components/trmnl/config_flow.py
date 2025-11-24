@@ -60,24 +60,24 @@ class TRMNLConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             try:
-                # Validate device_id and api_key
-                device_id = user_input.get("device_id", "").strip()
-                api_key = user_input.get("api_key", "").strip()
+                # Validate device_mac and account_api_key
+                device_mac = user_input.get("device_mac", "").strip()
+                account_api_key = user_input.get("account_api_key", "").strip()
 
-                if not device_id or not api_key:
+                if not device_mac or not account_api_key:
                     errors["base"] = "invalid_input"
                 else:
                     # Create a unique ID for this config entry
-                    await self.async_set_unique_id(f"trmnl-standard-{device_id}")
+                    await self.async_set_unique_id(f"trmnl-standard-{device_mac}")
                     self._abort_if_unique_id_configured()
 
                     # Return the config entry
                     return self.async_create_entry(
-                        title=f"TRMNL {device_id}",
+                        title=f"TRMNL {device_mac}",
                         data={
-                            "device_id": device_id,
+                            "device_id": device_mac,
                             "implementation_type": "standard",
-                            "api_key": api_key,
+                            "api_key": account_api_key,
                             "api_endpoint": "https://usetrmnl.com",
                         },
                     )
@@ -89,8 +89,8 @@ class TRMNLConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="standard",
             data_schema=vol.Schema(
                 {
-                    vol.Required("device_id"): str,
-                    vol.Required("api_key"): str,
+                    vol.Required("device_mac"): str,
+                    vol.Required("account_api_key"): str,
                 }
             ),
             errors=errors,
@@ -107,22 +107,22 @@ class TRMNLConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             try:
-                device_id = user_input.get("device_id", "").strip()
+                device_mac = user_input.get("device_mac", "").strip()
                 api_endpoint = user_input.get("api_endpoint", "").strip()
-                api_key = user_input.get("api_key", "").strip()
+                account_api_key = user_input.get("account_api_key", "").strip()
 
-                if not device_id or not api_endpoint:
+                if not device_mac or not api_endpoint:
                     errors["base"] = "invalid_input"
                 else:
-                    await self.async_set_unique_id(f"trmnl-terminus-{device_id}")
+                    await self.async_set_unique_id(f"trmnl-terminus-{device_mac}")
                     self._abort_if_unique_id_configured()
 
                     return self.async_create_entry(
-                        title=f"TRMNL Terminus {device_id}",
+                        title=f"TRMNL Terminus {device_mac}",
                         data={
-                            "device_id": device_id,
+                            "device_id": device_mac,
                             "implementation_type": "terminus",
-                            "api_key": api_key,
+                            "api_key": account_api_key,
                             "api_endpoint": api_endpoint,
                         },
                     )
@@ -134,9 +134,9 @@ class TRMNLConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="terminus",
             data_schema=vol.Schema(
                 {
-                    vol.Required("device_id"): str,
+                    vol.Required("device_mac"): str,
                     vol.Required("api_endpoint"): str,
-                    vol.Optional("api_key"): str,
+                    vol.Optional("account_api_key"): str,
                 }
             ),
             errors=errors,
@@ -150,21 +150,21 @@ class TRMNLConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             try:
-                device_id = user_input.get("device_id", "").strip()
+                device_mac = user_input.get("device_mac", "").strip()
                 api_endpoint = user_input.get("api_endpoint", "").strip()
 
-                if not device_id or not api_endpoint:
+                if not device_mac or not api_endpoint:
                     errors["base"] = "invalid_input"
                 else:
-                    await self.async_set_unique_id(f"trmnl-byos-{device_id}")
+                    await self.async_set_unique_id(f"trmnl-byos-{device_mac}")
                     self._abort_if_unique_id_configured()
 
                     return self.async_create_entry(
-                        title=f"TRMNL BYOS {device_id}",
+                        title=f"TRMNL BYOS {device_mac}",
                         data={
-                            "device_id": device_id,
+                            "device_id": device_mac,
                             "implementation_type": "generic_byos",
-                            "api_key": user_input.get("api_key", ""),
+                            "api_key": user_input.get("account_api_key", ""),
                             "api_endpoint": api_endpoint,
                         },
                     )
@@ -176,9 +176,9 @@ class TRMNLConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="generic_byos",
             data_schema=vol.Schema(
                 {
-                    vol.Required("device_id"): str,
+                    vol.Required("device_mac"): str,
                     vol.Required("api_endpoint"): str,
-                    vol.Optional("api_key"): str,
+                    vol.Optional("account_api_key"): str,
                 }
             ),
             errors=errors,
